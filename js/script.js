@@ -1,11 +1,14 @@
-'use strict';
+'use strict';   // pokazuje wszystkie błedy w kodzie
 
 // document.getElementById('test-button').addEventListener('click', function(){
 //     const links = document.querySelectorAll('.titles a');
 //     console.log('links:', links);
 // });
 
-const links = document.querySelectorAll('.titles a');   // tablica (lista?) wszystkich linków menu 
+// tablica (lista?) wszystkich linków lewego menu (class = title) 
+const links = document.querySelectorAll('.titles a');   
+
+// funkcja obsługująca kliknięcie w link lewego menu
 const titleClickHandler = function () { 
     console.log(event);
 
@@ -25,5 +28,7 @@ const titleClickHandler = function () {
 }
 
 for (const link of links) {
-    link.addEventListener('click', titleClickHandler);
+    // ustawiamy event (-> click) i wywołujemy funkcję
+    // titleClickHandler jest hendlerem eventu
+    link.addEventListener('click', titleClickHandler);  
 }
