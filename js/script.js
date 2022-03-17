@@ -108,19 +108,15 @@ function tagClickHandler(event) {
 
     // make a new constant "href" and read the attribute "href" of the clicked element
     const clickedHref = this.getAttribute('href');
-    console.log(clickedHref);
+    const tag = clickedHref.replace('#tag-', '');
+    console.log(tag);
     
     const allSelectedHref = document.querySelectorAll('a[href^="' + clickedHref + '"]');
     
     for (const selectedHref of allSelectedHref) {
 
         selectedHref.classList.add('active');
-
-        console.log(selectedHref);
-        
     }
-    
-    console.log(allSelectedHref);
 
     // make a new constant "tag" and extract tag from the "href" constant
 
