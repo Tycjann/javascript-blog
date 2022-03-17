@@ -39,14 +39,15 @@ const titleClickHandler = function (event) {
     targetArticle.classList.add('active');
 };
 
-function generateTitleLinks() {
+function generateTitleLinks(customSelector = '') {
     // * remove contents of titleList
     let titleList = document.querySelector(optTitleListSelector);
     
     titleList.innerHTML = '';
     
     // * for each article
-    const articles = document.querySelectorAll(optAllArticleSelector + ' article');
+    const articles = document.querySelectorAll(optAllArticleSelector + ' article' + customSelector);
+    
     let html = '';
     for (const article of articles) {
         // * get the article id
@@ -108,36 +109,35 @@ function tagClickHandler(event) {
 
     // make a new constant "href" and read the attribute "href" of the clicked element
     const clickedHref = this.getAttribute('href');
+    
+    // make a new constant "tag" and extract tag from the "href" constant
     const tag = clickedHref.replace('#tag-', '');
     console.log(tag);
     
+    // find all tag links with class active - star (^=) from #tag-
+    const allActiveTagLinks = document.querySelectorAll('a.active[href^="#tag-"]');
+    
+    // START LOOP: for each active tag link
+    for (const allActiveTagLink of allActiveTagLinks) {
+        // remove class active
+        allActiveTagLink.classList.remove('active');
+    }
+    // END LOOP: for each active tag link
+    
+    // find all tag links with "href" attribute equal to the "href" constant
     const allSelectedHref = document.querySelectorAll('a[href^="' + clickedHref + '"]');
     
+    // START LOOP: for each found tag link
     for (const selectedHref of allSelectedHref) {
 
+        // add class active
         selectedHref.classList.add('active');
     }
-
-    // make a new constant "tag" and extract tag from the "href" constant
-
-    // find all tag links with class active
-
-    // START LOOP: for each active tag link
-
-    // remove class active
-
-    // END LOOP: for each active tag link
-
-    // find all tag links with "href" attribute equal to the "href" constant
-
-    // START LOOP: for each found tag link
-
-    // add class active
-
     // END LOOP: for each found tag link
 
     // execute function "generateTitleLinks" with article selector as argument
-
+    // ~=, który możemy odczytać jako "znajdź elementy, które mają atrybut data-tags, który ma w sobie słowo 'tag'".
+    generateTitleLinks('[data-tags~="' + tag + '"]');
 }
   
 function addClickListenersToTags() {
