@@ -5,6 +5,7 @@ const optAllArticleSelector = '.posts';
 const optTitleSelector = '.post-title';
 const optTitleListSelector = '.titles';
 const optArticleTagsSelector = '.post-tags .list';
+const optArticleAuthorSelector = '.post-author';
 
 const titleClickHandler = function (event) {
     // blokowanie domyślengo zachowania przeglądarki po kliknięciu w linik
@@ -77,27 +78,29 @@ function generateTitleLinks(customSelector = '') {
 
 generateTitleLinks();
 
-function generateTags() 
+function generateTagsAndAuthors() 
 {
     const articles = document.querySelectorAll(optAllArticleSelector + ' article');
 
     for (const article of articles) {
 
+        // * Generate tags
         const dataTags = article.getAttribute('data-tags').split(' ');
-
         let html = '';
-
         for (const dataTag of dataTags) {
-            
             html = html + '<li><a href="#tag-' + dataTag + '"><span>' + dataTag + '</span></a></li>\n';
         }
-
-        let tagList = article.querySelector(optArticleTagsSelector);
+        const tagList = article.querySelector(optArticleTagsSelector);
         tagList.innerHTML = html;
+
+        //  * Generate authors
+        const dataAuthor = article.getAttribute('data-author');
+        const autorLink = article.querySelector(optArticleAuthorSelector);
+        autorLink.innerHTML = 'by <a href="#author-' + dataAuthor + '"><span>' + dataAuthor + '</span></a>';
     }
 }
 
-generateTags();
+generateTagsAndAuthors();
 
 function tagClickHandler(event) {
     
@@ -149,3 +152,22 @@ function addClickListenersToTags() {
 }
   
 addClickListenersToTags();
+
+function authorClickHandler(event)
+{
+    event.preventDefault();
+    
+    // const clickedElement = this;
+    const clickedAuthor = this.getAttribute('href');
+    console.log(clickedAuthor);
+}
+
+function addClickListenersToAuthors() {
+    // find all links to tags
+    const authorLinks = document.querySelectorAll(optArticleAuthorSelector + ' a');
+    for (const authorLink of authorLinks) {
+        authorLink.addEventListener('click', authorClickHandler); 
+    }
+}
+  
+addClickListenersToAuthors();
