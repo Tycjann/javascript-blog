@@ -76,8 +76,6 @@ function generateTitleLinks(customSelector = '') {
     }
 }
 
-generateTitleLinks();
-
 function generateTagsAndAuthors() 
 {
     const articles = document.querySelectorAll(optAllArticleSelector + ' article');
@@ -100,8 +98,6 @@ function generateTagsAndAuthors()
     }
 }
 
-generateTagsAndAuthors();
-
 function tagClickHandler(event) {
     
     // prevent default action for this event
@@ -115,9 +111,9 @@ function tagClickHandler(event) {
     
     // make a new constant "tag" and extract tag from the "href" constant
     const tag = clickedHref.replace('#tag-', '');
-    console.log(tag);
+    // console.log(tag);
     
-    // find all tag links with class active - star (^=) from #tag-
+    // find all tag links with class active - start (^=) from #tag-
     const allActiveTagLinks = document.querySelectorAll('a.active[href^="#tag-"]');
     
     // START LOOP: for each active tag link
@@ -150,16 +146,26 @@ function addClickListenersToTags() {
         tagLink.addEventListener('click', tagClickHandler); 
     }
 }
-  
-addClickListenersToTags();
 
 function authorClickHandler(event)
 {
     event.preventDefault();
     
-    // const clickedElement = this;
     const clickedAuthor = this.getAttribute('href');
-    console.log(clickedAuthor);
+    
+    const author = clickedAuthor.replace('#author-', '');
+    
+    const allActiveAuthorLinks = document.querySelectorAll('a.active[href^="#author-"]');
+    for (const allActiveAuthorLink of allActiveAuthorLinks) {
+        allActiveAuthorLink.classList.remove('active');
+    }
+
+    const allAuthorSelectedLinks = document.querySelectorAll('a[href^="' + clickedAuthor + '"]');
+    for (const authorSelectedLink of allAuthorSelectedLinks) {
+        authorSelectedLink.classList.add('active');
+    }
+    
+    generateTitleLinks('[data-author="' + author + '"]');
 }
 
 function addClickListenersToAuthors() {
@@ -169,5 +175,12 @@ function addClickListenersToAuthors() {
         authorLink.addEventListener('click', authorClickHandler); 
     }
 }
-  
+
+
+generateTitleLinks();
+
+generateTagsAndAuthors();
+
+addClickListenersToTags();
+
 addClickListenersToAuthors();
