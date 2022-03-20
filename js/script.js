@@ -6,6 +6,7 @@ const optTitleSelector = '.post-title';
 const optTitleListSelector = '.titles';
 const optArticleTagsSelector = '.post-tags .list';
 const optArticleAuthorSelector = '.post-author';
+const optTagsListSelector  = '.tags.list'; // tego nie rozumiem, dlsczego '.tags.list', a nie '.list .tags'
 
 const titleClickHandler = function (event) {
     // blokowanie domyślengo zachowania przeglądarki po kliknięciu w linik
@@ -79,14 +80,23 @@ function generateTitleLinks(customSelector = '') {
 function generateTagsAndAuthors() 
 {
     const articles = document.querySelectorAll(optAllArticleSelector + ' article');
+    let allTags = [];
+    let htmlTag = '';
 
     for (const article of articles) {
 
         // * Generate tags
         const dataTags = article.getAttribute('data-tags').split(' ');
         let html = '';
+        
         for (const dataTag of dataTags) {
             html = html + '<li><a href="#tag-' + dataTag + '"><span>' + dataTag + '</span></a></li>\n';
+
+            htmlTag = '<li><a href="#tag-' + dataTag + '">' + dataTag + '</a> <span>(X)</span></li>';
+            
+            if (allTags.indexOf(htmlTag) == -1) {
+                allTags.push(htmlTag);
+            }
         }
         const tagList = article.querySelector(optArticleTagsSelector);
         tagList.innerHTML = html;
@@ -96,6 +106,11 @@ function generateTagsAndAuthors()
         const autorLink = article.querySelector(optArticleAuthorSelector);
         autorLink.innerHTML = 'by <a href="#author-' + dataAuthor + '"><span>' + dataAuthor + '</span></a>';
     }
+
+    // * Generate tag list
+    const tagListRight = document.querySelector(optTagsListSelector);
+    allTags.sort();
+    tagListRight.innerHTML = allTags.join(' ');
 }
 
 function tagClickHandler(event) {
@@ -144,6 +159,12 @@ function addClickListenersToTags() {
     const tagLinks = document.querySelectorAll(optArticleTagsSelector + ' a');
     for (const tagLink of tagLinks) {
         tagLink.addEventListener('click', tagClickHandler); 
+    }
+
+    // find all links to tags in right menu tags 
+    const tagLinks2 = document.querySelectorAll(optTagsListSelector + ' a');
+    for (const tagLink2 of tagLinks2) {
+        tagLink2.addEventListener('click', tagClickHandler); 
     }
 }
 
