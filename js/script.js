@@ -80,8 +80,7 @@ function generateTitleLinks(customSelector = '') {
 function generateTagsAndAuthors() 
 {
     const articles = document.querySelectorAll(optAllArticleSelector + ' article');
-    let allTags = [];
-    let htmlTag = '';
+    let allTags = {};
 
     for (const article of articles) {
 
@@ -92,10 +91,10 @@ function generateTagsAndAuthors()
         for (const dataTag of dataTags) {
             html = html + '<li><a href="#tag-' + dataTag + '"><span>' + dataTag + '</span></a></li>\n';
 
-            htmlTag = '<li><a href="#tag-' + dataTag + '">' + dataTag + '</a> <span>(X)</span></li>';
-            
-            if (allTags.indexOf(htmlTag) == -1) {
-                allTags.push(htmlTag);
+            if (!allTags[dataTag]) {
+                allTags[dataTag] = 1;
+            } else {
+                allTags[dataTag]++;
             }
         }
         const tagList = article.querySelector(optArticleTagsSelector);
@@ -108,9 +107,55 @@ function generateTagsAndAuthors()
     }
 
     // * Generate tag list
+    let allTagsHTML = '';
+    const tagsParams = calculateTagsParams(allTags);
+    console.log('tagsParams:', tagsParams);
+    
+    function calculateTagsParams(tags) {
+        let params = {max: 0, min: 999999};
+        
+        // params['max'] => params.max
+        // params['min'] => params.min
+        for (const tag in tags) {
+            // if(tags[tag] > params.max){
+            // params.max = tags[tag];
+            // }
+            // if(tags[tag] < params.min){
+            //     params.min = tags[tag];
+            // }
+            // ta opcja 5-10% wolniejsza
+            // params.max = tags[tag] > params.max ? tags[tag] : params.max;
+            // params.min = tags[tag] < params.min ? tags[tag] : params.min;
+
+            params.max = Math.max(tags[tag], params.max);
+            params.min = Math.min(tags[tag], params.min);
+        }
+
+
+        // Dlaczego to nie zadziałało? 
+        // tagAll nie jest traktowany jako '6, 4, 6, 5, 4, ' i nie działa z np. Math.min(tagAll)
+        // Ale jak wpiszę Math.min(6, 4, 6, 5, 4, ) to podaje wynik 4.
+        // let params = {};
+        // let tagAll = '';
+        // for (const tag in tags) {
+        //     tagAll += tags[tag] + ', ';
+        // }
+        // console.log('tagArray:', tagAll);
+        // let min = Math.min(tagAll);
+        // let max = Math.max(tagAll);
+        // params['min'] = min;
+        // params['max'] = max;
+
+        return params;
+    }
+    
+    for (const tag in allTags) {
+        allTagsHTML += '<li><a href="#tag-' + tag + '">' + tag + '</a> <span>(' + allTags[tag] + ')</span></li>\n';
+    }
+    // console.log(allTagsHTML);
+
     const tagListRight = document.querySelector(optTagsListSelector);
-    allTags.sort();
-    tagListRight.innerHTML = allTags.join(' ');
+    tagListRight.innerHTML = allTagsHTML;
 }
 
 function tagClickHandler(event) {
