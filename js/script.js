@@ -1,16 +1,17 @@
 'use strict';
 console.clear();
 
-const optAllArticleSelector = '.posts';
-const optTitleSelector = '.post-title';
-const optTitleListSelector = '.titles';
-const optArticleTagsSelector = '.post-tags .list';
-const optArticleAuthorSelector = '.post-author';
-const optTagsListSelector  = '.tags.list'; // ? tego nie rozumiem, dlaczego '.tags.list', a nie '.list .tags'
-const optAuthorListSelector  = '.authors.list';
-
-const optCloudClassCount  = 5;
-const optCloudClassPrefix = 'tag-size-';
+const opts = {
+    allArticleSelector: '.posts',
+    titleSelector: '.post-title',
+    titleListSelector: '.titles',
+    articleTagsSelector: '.post-tags .list',
+    articleAuthorSelector: '.post-author',
+    tagsListSelector:  '.tags.list', // ? tego nie rozumiem, dlaczego '.tags.list', a nie '.list .tags'
+    authorListSelector:  '.authors.list',
+    cloudClassCount:  5,
+    cloudClassPrefix: 'tag-size-',
+};
 
 const titleClickHandler = function (event) {
     // blokowanie domyślengo zachowania przeglądarki po kliknięciu w linik
@@ -19,7 +20,7 @@ const titleClickHandler = function (event) {
     const clickedElement = this;
 
     // * [DONE] remove class 'active' from all article links 
-    const activeLinks = document.querySelectorAll(optTitleListSelector + ' a.active');
+    const activeLinks = document.querySelectorAll(opts.titleListSelector + ' a.active');
     
     for (const activeLink of activeLinks) {
         activeLink.classList.remove('active');
@@ -29,7 +30,7 @@ const titleClickHandler = function (event) {
     clickedElement.classList.add('active');
 
     // * [DONE] remove class 'active' from all articles
-    const activeArticles = document.querySelectorAll(optAllArticleSelector + ' article.active');
+    const activeArticles = document.querySelectorAll(opts.allArticleSelector + ' article.active');
 
     for (const activeArticle of activeArticles) {
         activeArticle.classList.remove('active');
@@ -47,12 +48,12 @@ const titleClickHandler = function (event) {
 
 function generateTitleLinks(customSelector = '') {
     // * remove contents of titleList
-    let titleList = document.querySelector(optTitleListSelector);
+    let titleList = document.querySelector(opts.titleListSelector);
     
     titleList.innerHTML = '';
     
     // * for each article
-    const articles = document.querySelectorAll(optAllArticleSelector + ' article' + customSelector);
+    const articles = document.querySelectorAll(opts.allArticleSelector + ' article' + customSelector);
     
     let html = '';
     for (const article of articles) {
@@ -61,7 +62,7 @@ function generateTitleLinks(customSelector = '') {
         
         // * find the title element
         // * get the title from the title element
-        const articleTitle = article.querySelector(optTitleSelector).innerHTML;
+        const articleTitle = article.querySelector(opts.titleSelector).innerHTML;
         
         // * create HTML of the link
         // * insert link into titleList
@@ -72,7 +73,7 @@ function generateTitleLinks(customSelector = '') {
     titleList.innerHTML = html;
 
     // lista wszystkich linków lewego menu (class = title) 
-    const links = document.querySelectorAll(optTitleListSelector + ' a');  
+    const links = document.querySelectorAll(opts.titleListSelector + ' a');  
 
     for (const link of links) {
         // ustawiamy event (-> click) i wywołujemy funkcję
@@ -87,25 +88,63 @@ function calculateTagClass(count, params) {
     const normalizedCount = count - params.min;
     const normalizedMax = params.max - params.min;
     const percentage = normalizedCount / normalizedMax;
-    const classNumber = Math.floor( percentage * (optCloudClassCount - 1) + 1 );
+    const classNumber = Math.floor( percentage * (opts.cloudClassCount - 1) + 1 );
 
     // wariant II (step by step):
     // classNumber = Math.floor( 0.5 * 5 + 1 );
-    // classNumber = Math.floor( 0.5 * optCloudClassCount + 1 );
-    // classNumber = Math.floor( ( 4 / 8 ) * optCloudClassCount + 1 );
-    // classNumber = Math.floor( ( (6 - 2) / (10 - 2) ) * optCloudClassCount + 1 );
-    // classNumber = Math.floor( ( (count - 2) / (10 - 2) ) * optCloudClassCount + 1 );
-    // classNumber = Math.floor( ( (count - 2) / (params.max - 2) ) * optCloudClassCount + 1 );
-    // classNumber = Math.floor( ( (count - params.min) / (params.max - 2) ) * optCloudClassCount + 1 );
-    // classNumber = Math.floor( ( (count - params.min) / (params.max - params.min) ) * optCloudClassCount + 1 );
+    // classNumber = Math.floor( 0.5 * opts.cloudClassCount + 1 );
+    // classNumber = Math.floor( ( 4 / 8 ) * opts.cloudClassCount + 1 );
+    // classNumber = Math.floor( ( (6 - 2) / (10 - 2) ) * opts.cloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - 2) / (10 - 2) ) * opts.cloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - 2) / (params.max - 2) ) * opts.cloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - params.min) / (params.max - 2) ) * opts.cloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - params.min) / (params.max - params.min) ) * opts.cloudClassCount + 1 );
 
     return classNumber;
 }
 
+function calculateTagsParams(tags) {
+    let params = {max: 0, min: 999999};
+    
+    for (const tag in tags) {
+        // v1
+        // if(tags[tag] > params.max){
+        // params.max = tags[tag];
+        // }
+        // if(tags[tag] < params.min){
+        //     params.min = tags[tag];
+        // }
+        // v2
+        // ta opcja 5-10% wolniejsza
+        // params.max = tags[tag] > params.max ? tags[tag] : params.max;
+        // params.min = tags[tag] < params.min ? tags[tag] : params.min;
+        // v3
+        params.max = Math.max(tags[tag], params.max);
+        params.min = Math.min(tags[tag], params.min);
+    }
+
+    // ? Dlaczego to nie zadziałało? 
+    // tagAll nie jest traktowany jako '6, 4, 6, 5, 4, ' i nie działa z np. Math.min(tagAll)
+    // Ale jak wpiszę Math.min(6, 4, 6, 5, 4, ) to podaje wynik 4.
+    // let params = {};
+    // let tagAll = '';
+    // for (const tag in tags) {
+    //     tagAll += tags[tag] + ', ';
+    // }
+    // console.log('tagArray:', tagAll);
+    // let min = Math.min(tagAll);
+    // let max = Math.max(tagAll);
+    // params['min'] = min;
+    // params['max'] = max;
+
+    return params;
+}
+
 function generateTagsAndAuthors() 
 {
-    const articles = document.querySelectorAll(optAllArticleSelector + ' article');
+    const articles = document.querySelectorAll(opts.allArticleSelector + ' article');
     let allTags = {};
+    let allAuthors = {};
 
     for (const article of articles) {
 
@@ -122,65 +161,38 @@ function generateTagsAndAuthors()
                 allTags[dataTag]++;
             }
         }
-        const tagList = article.querySelector(optArticleTagsSelector);
+        const tagList = article.querySelector(opts.articleTagsSelector);
         tagList.innerHTML = html;
 
         //  * Generate authors
         const dataAuthor = article.getAttribute('data-author');
-        const autorLink = article.querySelector(optArticleAuthorSelector);
+        const autorLink = article.querySelector(opts.articleAuthorSelector);
         autorLink.innerHTML = 'by <a href="#author-' + dataAuthor + '"><span>' + dataAuthor + '</span></a>';
+
+        if (!allAuthors[dataAuthor]) {
+            allAuthors[dataAuthor] = 1;
+        } else {
+            allAuthors[dataAuthor]++;
+        }
     }
+    // * Generate author list
+    let allAuthorHTML = '';
+    for (const autor in allAuthors) {
+        allAuthorHTML += '<li><a href="#author-' + autor + '"><span class="author-name">' + autor + '</a> (' + allAuthors[autor] + ')</span></li>\n';
+    }
+
+    const tagAuthorRight = document.querySelector(opts.authorListSelector);
+    tagAuthorRight.innerHTML = allAuthorHTML;
 
     // * Generate tag list
     let allTagsHTML = '';
     const tagsParams = calculateTagsParams(allTags);
-    console.log('tagsParams:', tagsParams);
-    
-    function calculateTagsParams(tags) {
-        let params = {max: 0, min: 999999};
-        
-        // params['max'] => params.max
-        // params['min'] => params.min
-        for (const tag in tags) {
-            // if(tags[tag] > params.max){
-            // params.max = tags[tag];
-            // }
-            // if(tags[tag] < params.min){
-            //     params.min = tags[tag];
-            // }
-            // ta opcja 5-10% wolniejsza
-            // params.max = tags[tag] > params.max ? tags[tag] : params.max;
-            // params.min = tags[tag] < params.min ? tags[tag] : params.min;
-
-            params.max = Math.max(tags[tag], params.max);
-            params.min = Math.min(tags[tag], params.min);
-        }
-
-
-        // ? Dlaczego to nie zadziałało? 
-        // tagAll nie jest traktowany jako '6, 4, 6, 5, 4, ' i nie działa z np. Math.min(tagAll)
-        // Ale jak wpiszę Math.min(6, 4, 6, 5, 4, ) to podaje wynik 4.
-        // let params = {};
-        // let tagAll = '';
-        // for (const tag in tags) {
-        //     tagAll += tags[tag] + ', ';
-        // }
-        // console.log('tagArray:', tagAll);
-        // let min = Math.min(tagAll);
-        // let max = Math.max(tagAll);
-        // params['min'] = min;
-        // params['max'] = max;
-
-        return params;
-    }
     
     for (const tag in allTags) {
-        // allTagsHTML += '<li><a href="#tag-' + tag + '">' + tag + '</a> <span>(' + allTags[tag] + ')</span></li>\n';
-        allTagsHTML += '<li><a class="' + optCloudClassPrefix + calculateTagClass(allTags[tag],tagsParams) + '" href="#tag-' + tag + '">' + tag + '</a></li>\n';
+        allTagsHTML += '<li><a class="' + opts.cloudClassPrefix + calculateTagClass(allTags[tag],tagsParams) + '" href="#tag-' + tag + '">' + tag + '</a></li>\n';
     }
-    // console.log(allTagsHTML);
 
-    const tagListRight = document.querySelector(optTagsListSelector);
+    const tagListRight = document.querySelector(opts.tagsListSelector);
     tagListRight.innerHTML = allTagsHTML;
 }
 
@@ -189,15 +201,11 @@ function tagClickHandler(event) {
     // prevent default action for this event
     event.preventDefault();
     
-    // make new constant named "clickedElement" and give it the value of "this"
-    // const clickedElement = this;
-
     // make a new constant "href" and read the attribute "href" of the clicked element
     const clickedHref = this.getAttribute('href');
     
     // make a new constant "tag" and extract tag from the "href" constant
     const tag = clickedHref.replace('#tag-', '');
-    // console.log(tag);
     
     // find all tag links with class active - start (^=) from #tag-
     const allActiveTagLinks = document.querySelectorAll('a.active[href^="#tag-"]');
@@ -227,15 +235,15 @@ function tagClickHandler(event) {
   
 function addClickListenersToTags() {
     // find all links to tags
-    const tagLinks = document.querySelectorAll(optArticleTagsSelector + ' a');
+    let tagLinks = document.querySelectorAll(opts.articleTagsSelector + ' a');
     for (const tagLink of tagLinks) {
         tagLink.addEventListener('click', tagClickHandler); 
     }
 
     // find all links to tags in right menu tags 
-    const tagLinks2 = document.querySelectorAll(optTagsListSelector + ' a');
-    for (const tagLink2 of tagLinks2) {
-        tagLink2.addEventListener('click', tagClickHandler); 
+    tagLinks = document.querySelectorAll(opts.tagsListSelector + ' a');
+    for (const tagLink of tagLinks) {
+        tagLink.addEventListener('click', tagClickHandler); 
     }
 }
 
@@ -261,13 +269,18 @@ function authorClickHandler(event)
 }
 
 function addClickListenersToAuthors() {
-    // find all links to tags
-    const authorLinks = document.querySelectorAll(optArticleAuthorSelector + ' a');
+    // find all links to autor
+    let authorLinks = document.querySelectorAll(opts.articleAuthorSelector + ' a');
+    for (const authorLink of authorLinks) {
+        authorLink.addEventListener('click', authorClickHandler); 
+    }
+
+    // find all links to autor in right menu tags 
+    authorLinks = document.querySelectorAll(opts.authorListSelector + ' a');
     for (const authorLink of authorLinks) {
         authorLink.addEventListener('click', authorClickHandler); 
     }
 }
-
 
 generateTitleLinks();
 
