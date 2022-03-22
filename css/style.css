@@ -47,6 +47,36 @@ body {
           flex: 1 0 0;
 }
 
+.sidebar ul.list.tags li {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.sidebar ul.list.tags li a.tag-size-1 {
+  font-size: 100%;
+  color: #353b48;
+}
+
+.sidebar ul.list.tags li a.tag-size-2 {
+  font-size: 120%;
+  color: #40739e;
+}
+
+.sidebar ul.list.tags li a.tag-size-3 {
+  font-size: 140%;
+  color: #192a56;
+}
+
+.sidebar ul.list.tags li a.tag-size-4 {
+  font-size: 160%;
+  color: #c23616;
+}
+
+.sidebar ul.list.tags li a.tag-size-5 {
+  font-size: 180%;
+  color: #0097e6;
+}
+
 .posts {
   -webkit-box-flex: 2;
       -ms-flex: 2 0 0px;

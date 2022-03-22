@@ -6,7 +6,11 @@ const optTitleSelector = '.post-title';
 const optTitleListSelector = '.titles';
 const optArticleTagsSelector = '.post-tags .list';
 const optArticleAuthorSelector = '.post-author';
-const optTagsListSelector  = '.tags.list'; // tego nie rozumiem, dlsczego '.tags.list', a nie '.list .tags'
+const optTagsListSelector  = '.tags.list'; // ? tego nie rozumiem, dlaczego '.tags.list', a nie '.list .tags'
+const optAuthorListSelector  = '.authors.list';
+
+const optCloudClassCount  = 5;
+const optCloudClassPrefix = 'tag-size-';
 
 const titleClickHandler = function (event) {
     // blokowanie domyślengo zachowania przeglądarki po kliknięciu w linik
@@ -77,6 +81,27 @@ function generateTitleLinks(customSelector = '') {
     }
 }
 
+// * Calculate tag's font size
+function calculateTagClass(count, params) {
+
+    const normalizedCount = count - params.min;
+    const normalizedMax = params.max - params.min;
+    const percentage = normalizedCount / normalizedMax;
+    const classNumber = Math.floor( percentage * (optCloudClassCount - 1) + 1 );
+
+    // wariant II (step by step):
+    // classNumber = Math.floor( 0.5 * 5 + 1 );
+    // classNumber = Math.floor( 0.5 * optCloudClassCount + 1 );
+    // classNumber = Math.floor( ( 4 / 8 ) * optCloudClassCount + 1 );
+    // classNumber = Math.floor( ( (6 - 2) / (10 - 2) ) * optCloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - 2) / (10 - 2) ) * optCloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - 2) / (params.max - 2) ) * optCloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - params.min) / (params.max - 2) ) * optCloudClassCount + 1 );
+    // classNumber = Math.floor( ( (count - params.min) / (params.max - params.min) ) * optCloudClassCount + 1 );
+
+    return classNumber;
+}
+
 function generateTagsAndAuthors() 
 {
     const articles = document.querySelectorAll(optAllArticleSelector + ' article');
@@ -132,7 +157,7 @@ function generateTagsAndAuthors()
         }
 
 
-        // Dlaczego to nie zadziałało? 
+        // ? Dlaczego to nie zadziałało? 
         // tagAll nie jest traktowany jako '6, 4, 6, 5, 4, ' i nie działa z np. Math.min(tagAll)
         // Ale jak wpiszę Math.min(6, 4, 6, 5, 4, ) to podaje wynik 4.
         // let params = {};
@@ -150,7 +175,8 @@ function generateTagsAndAuthors()
     }
     
     for (const tag in allTags) {
-        allTagsHTML += '<li><a href="#tag-' + tag + '">' + tag + '</a> <span>(' + allTags[tag] + ')</span></li>\n';
+        // allTagsHTML += '<li><a href="#tag-' + tag + '">' + tag + '</a> <span>(' + allTags[tag] + ')</span></li>\n';
+        allTagsHTML += '<li><a class="' + optCloudClassPrefix + calculateTagClass(allTags[tag],tagsParams) + '" href="#tag-' + tag + '">' + tag + '</a></li>\n';
     }
     // console.log(allTagsHTML);
 

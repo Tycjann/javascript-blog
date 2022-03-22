@@ -4,6 +4,11 @@
 
 $color-light: #fff;
 $color-dark: #444;
+$color-font-01: #353b48;
+$color-font-02: #40739e;
+$color-font-03: #192a56;
+$color-font-04: #c23616;
+$color-font-05: #0097e6;
 
 $font-logo: 'Sacramento', cursive;
 $font-header: 'Oswald', sans-serif;
@@ -50,6 +55,34 @@ body {
 
 .sidebar {
   flex: 1 0 0;
+
+  ul.list.tags li {
+    display: inline-block;
+    margin-right: 6px;
+
+    a {
+      &.tag-size-1 {
+        font-size: 100%;
+        color: $color-font-01;
+      }
+      &.tag-size-2 {
+        font-size: 120%;
+        color: $color-font-02;
+      }
+      &.tag-size-3 {
+        font-size: 140%;
+        color: $color-font-03;
+      }
+      &.tag-size-4 {
+        font-size: 160%;
+        color: $color-font-04;
+      }
+      &.tag-size-5 {
+        font-size: 180%;
+        color: $color-font-05;
+      }
+    }
+  }
 }
 
 .posts {
