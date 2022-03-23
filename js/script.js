@@ -1,5 +1,16 @@
+/* eslint-disable no-unused-vars */
 'use strict';
 console.clear();
+
+const templates = {
+    articleLink: Handlebars.compile(document.querySelector('#template-article-link').innerHTML),
+    authorLink: Handlebars.compile(document.querySelector('#template-author-link').innerHTML),
+    tagLink: Handlebars.compile(document.querySelector('#template-tag-link').innerHTML),
+    tagCloudLink: Handlebars.compile(document.querySelector('#template-tag-cloud-link').innerHTML),
+    authorMenuLink: Handlebars.compile(document.querySelector('#template-author-menu-link').innerHTML)
+};
+
+
 
 const opts = {
     allArticleSelector: '.posts',
@@ -66,10 +77,13 @@ function generateTitleLinks(customSelector = '') {
         
         // * create HTML of the link
         // * insert link into titleList
-        html = html + '<li><a href="#' + articleId + '"><span>' + articleTitle + '</span></a></li>\n';
+        const htmlData = {id: articleId, title: articleTitle};
+        html += templates.articleLink(htmlData);
+        // html = html + '<li><a href="#' + articleId + '"><span>' + articleTitle + '</span></a></li>\n';
     }
-    
+
     // * insert link into titleList
+    // console.log(html);
     titleList.innerHTML = html;
 
     // lista wszystkich linków lewego menu (class = title) 
@@ -153,7 +167,10 @@ function generateTagsAndAuthors()
         let html = '';
         
         for (const dataTag of dataTags) {
-            html = html + '<li><a href="#tag-' + dataTag + '"><span>' + dataTag + '</span></a></li>\n';
+
+            const htmlData = {id: dataTag, title: dataTag};
+            html += templates.tagLink(htmlData);
+            // html = html + '<li><a href="#tag-' + dataTag + '"><span>' + dataTag + '</span></a></li>\n';
 
             if (!allTags[dataTag]) {
                 allTags[dataTag] = 1;
@@ -167,7 +184,12 @@ function generateTagsAndAuthors()
         //  * Generate authors
         const dataAuthor = article.getAttribute('data-author');
         const autorLink = article.querySelector(opts.articleAuthorSelector);
-        autorLink.innerHTML = 'by <a href="#author-' + dataAuthor + '"><span>' + dataAuthor + '</span></a>';
+
+        const htmlData = {id: dataAuthor, title: dataAuthor};
+        html = templates.articleLink(htmlData);
+
+        autorLink.innerHTML = templates.authorLink(htmlData);
+        // autorLink.innerHTML = 'by <a href="#author-' + dataAuthor + '"><span>' + dataAuthor + '</span></a>';
 
         if (!allAuthors[dataAuthor]) {
             allAuthors[dataAuthor] = 1;
@@ -176,24 +198,39 @@ function generateTagsAndAuthors()
         }
     }
     // * Generate author list
-    let allAuthorHTML = '';
+    // let allAuthorHTML = '';
+    const allAuthorData = {authors: []};
     for (const autor in allAuthors) {
-        allAuthorHTML += '<li><a href="#author-' + autor + '"><span class="author-name">' + autor + '</a> (' + allAuthors[autor] + ')</span></li>\n';
+        allAuthorData.authors.push({
+            id: autor,
+            count: allAuthors[autor]
+        });
+        // allAuthorHTML += '<li><a href="#author-' + autor + '"><span class="author-name">' + autor + '</a> (' + allAuthors[autor] + ')</span></li>\n';
     }
-
+    // console.log(allAuthorData);
     const tagAuthorRight = document.querySelector(opts.authorListSelector);
-    tagAuthorRight.innerHTML = allAuthorHTML;
+    tagAuthorRight.innerHTML = templates.authorMenuLink(allAuthorData);
+    // tagAuthorRight.innerHTML = allAuthorHTML;
 
     // * Generate tag list
-    let allTagsHTML = '';
+    // let allTagsHTML = '';
+    const allTagsData = {tags: []};
+
     const tagsParams = calculateTagsParams(allTags);
     
     for (const tag in allTags) {
-        allTagsHTML += '<li><a class="' + opts.cloudClassPrefix + calculateTagClass(allTags[tag],tagsParams) + '" href="#tag-' + tag + '">' + tag + '</a></li>\n';
+
+        allTagsData.tags.push({
+            id: tag,
+            count: allTags[tag],
+            class: opts.cloudClassPrefix + calculateTagClass(allTags[tag], tagsParams)
+        });
+        // allTagsHTML += '<li><a class="' + opts.cloudClassPrefix + calculateTagClass(allTags[tag],tagsParams) + '" href="#tag-' + tag + '">' + tag + '</a></li>\n';
     }
 
     const tagListRight = document.querySelector(opts.tagsListSelector);
-    tagListRight.innerHTML = allTagsHTML;
+    tagListRight.innerHTML = templates.tagCloudLink(allTagsData);
+    // tagListRight.innerHTML = allTagsHTML;
 }
 
 function tagClickHandler(event) {
